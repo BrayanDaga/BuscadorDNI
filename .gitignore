@@ -1,0 +1,36 @@
+# Eclipse specific files
+/.settings/
+/bin/
+/.project
+.classpath
+
+# IntelliJ IDEA specific files
+/.idea/
+/*.iml
+
+# VSCode specific files
+/.vscode/
+
+# NetBeans specific files
+/nbproject/
+nbproject/private/
+/build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Maven specific files
+/target/
+
+# General IDE specific files
+*.swp
+*~
+# Local environment
+.env
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
