@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -23,7 +22,6 @@ import java.awt.datatransfer.StringSelection;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.JButton;
-import java.awt.Button;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,7 +29,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.awt.event.ActionEvent;
-import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.JProgressBar;
@@ -302,7 +299,8 @@ public class BuscadorDNI extends JFrame {
 
 	protected String makePostRequest(String apiUrl, String token, String dni) {
 		try {
-            URL url = new URL(apiUrl);
+            @SuppressWarnings("deprecation")
+			URL url = new URL(apiUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "application/json");

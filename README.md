@@ -3,7 +3,7 @@
 ![](screenshoot.gif)  <!-- Cambia el path por la ubicación de tu GIF -->
 
 
-Este es un programita hecho en Java que consulta el DNI y obtiene los nombres de las personas. La API utilizada es proporcionada por un tercero: [apiperu.dev](https://apiperu.dev/).
+Este es un pequeno programa hecho en Java que consulta el DNI y obtiene los nombres de las personas. La API utilizada es proporcionada por un tercero: [apiperu.dev](https://apiperu.dev/).
 
 ## Características
 
@@ -45,7 +45,7 @@ Este es un programita hecho en Java que consulta el DNI y obtiene los nombres de
 1. Ejecuta el proyecto:
 
     ```sh
-    mvn exec:java -Dexec.mainClass="com.brayan.testapi.PostRequestWithProgressBar"
+    mvn exec:java -Dexec.mainClass="com.brayan.testapi.Launcher"
     ```
 
 2. Sigue las instrucciones en la interfaz gráfica para ingresar el DNI y consultar la información.
