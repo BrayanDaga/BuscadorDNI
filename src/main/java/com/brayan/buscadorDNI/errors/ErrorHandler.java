@@ -1,4 +1,4 @@
-package com.brayan.testapi.errors;
+package com.brayan.buscadorDNI.errors;
 
 public class ErrorHandler {
     

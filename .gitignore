@@ -18,6 +18,9 @@ nbproject/private/
 nbbuild/
 dist/
 nbdist/
+
+/target/
+
 .nb-gradle/
 
 # Maven specific files

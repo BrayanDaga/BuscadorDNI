@@ -1,4 +1,4 @@
-package com.brayan.testapi;
+package com.brayan.buscadorDNI;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -6,7 +6,9 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import org.json.JSONObject;
-import com.brayan.testapi.errors.ErrorHandler;
+
+import com.brayan.buscadorDNI.errors.ErrorHandler;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.Font;
@@ -27,7 +29,7 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.JProgressBar;
 
-public class BuscadorDNI extends JFrame {
+public class MainWindow extends JFrame {
 
 	private static final String API_URL = "https://apiperu.dev/api/dni";
 
@@ -48,9 +50,9 @@ public class BuscadorDNI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public BuscadorDNI(String apiToken) {
+	public MainWindow(String apiToken) {
 
-		BuscadorDNI.apiToken = apiToken;
+		MainWindow.apiToken = apiToken;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 500);
 		setResizable(false);
@@ -121,19 +123,24 @@ public class BuscadorDNI extends JFrame {
 
 		JButton buttonCopy1 = new JButton("");
 		buttonCopy1.setBounds(480, 98, 32, 32);
-		buttonCopy1.setIcon(new ImageIcon(BuscadorDNI.class.getResource("/com/brayan/testapi/images/copia.png")));
+		buttonCopy1.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
 		contentPane.add(buttonCopy1);
 
 		JButton buttonCopy2 = new JButton("");
 
-		buttonCopy2.setIcon(new ImageIcon(BuscadorDNI.class.getResource("/com/brayan/testapi/images/copia.png")));
+		buttonCopy2.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
 		buttonCopy2.setBounds(480, 144, 32, 32);
 		contentPane.add(buttonCopy2);
 
 		JButton buttonCopy3 = new JButton("");
-		buttonCopy3.setIcon(new ImageIcon(BuscadorDNI.class.getResource("/com/brayan/testapi/images/copia.png")));
+		buttonCopy3.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
 		buttonCopy3.setBounds(480, 194, 32, 32);
 		contentPane.add(buttonCopy3);
+		
+		JButton buttonCopy4 = new JButton("");
+		buttonCopy4.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
+		buttonCopy4.setBounds(480, 243, 32, 32);
+		contentPane.add(buttonCopy4);
 
 		JLabel lblNewLabel_1_2_1 = new JLabel("Numero Dni");
 		lblNewLabel_1_2_1.setFont(new Font("Noto Serif", Font.PLAIN, 18));
@@ -147,10 +154,7 @@ public class BuscadorDNI extends JFrame {
 		textField_numerodni.setEditable(false);
 		contentPane.add(textField_numerodni);
 
-		JButton buttonCopy4 = new JButton("");
-		buttonCopy4.setIcon(new ImageIcon(BuscadorDNI.class.getResource("/com/brayan/testapi/images/copia.png")));
-		buttonCopy4.setBounds(480, 243, 32, 32);
-		contentPane.add(buttonCopy4);
+	
 
 		lblNombreCompleto = new JLabel("");
 		lblNombreCompleto.setBorder(new LineBorder(new Color(0, 0, 0)));

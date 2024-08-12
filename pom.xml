@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.brayan</groupId>
-    <artifactId>testapi</artifactId>
+    <artifactId>buscadorDNI</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>testapi</name>
+    <name>buscadorDNI</name>
     <packaging>jar</packaging>
 
     <dependencies>
