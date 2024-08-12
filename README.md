@@ -25,8 +25,8 @@ Este es un pequeño programa hecho en Java que consulta el DNI y obtiene los nom
 ### 1. Clona este repositorio:
 
 ```sh
-git clone https://github.com/tu-usuario/tu-repositorio.git
-cd tu-repositorio
+git clone https://github.com/BrayanDaga/BuscadorDNI.git
+cd BuscadorDNI
 ```
 
 ### 2. Configura las variables de entorno:
