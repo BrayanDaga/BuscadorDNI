@@ -1,4 +1,4 @@
-package com.brayan.buscadorDNI.errors;
+package com.brayan.buscadorDNI.exceptions;
 
 public class IOException extends Exception {
     /**

@@ -2,7 +2,7 @@ package com.brayan.buscadorDNI;
 
 import javax.swing.JOptionPane;
 
-import com.brayan.buscadorDNI.errors.ErrorHandler;
+import com.brayan.buscadorDNI.exceptions.ErrorHandler;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

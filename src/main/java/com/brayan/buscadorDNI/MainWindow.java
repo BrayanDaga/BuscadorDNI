@@ -7,7 +7,9 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import org.json.JSONObject;
 
-import com.brayan.buscadorDNI.errors.ErrorHandler;
+import com.brayan.buscadorDNI.exceptions.ErrorHandler;
+import com.brayan.buscadorDNI.exceptions.NoInternetException;
+import com.brayan.buscadorDNI.utils.InternetChecker;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -301,47 +303,57 @@ public class MainWindow extends JFrame {
 		clipboard.setContents(stringSelection, null);
 
 	}
-
 	protected String makePostRequest(String apiUrl, String token, String dni) throws Exception {
-		try {
-			@SuppressWarnings("deprecation")
-			URL url = new URL(apiUrl);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Authorization", "Bearer " + token);
-			conn.setDoOutput(true);
+	    try {
+	        // Verificar conexión a Internet antes de hacer la solicitud
+	        InternetChecker.checkInternetConnection();
 
-			// Crear el cuerpo de la solicitud
-			JSONObject jsonBody = new JSONObject();
-			jsonBody.put("dni", dni);
-			String body = jsonBody.toString();
+	        @SuppressWarnings("deprecation")
+	        URL url = new URL(apiUrl);
+	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn.setRequestMethod("POST");
+	        conn.setRequestProperty("Accept", "application/json");
+	        conn.setRequestProperty("Content-Type", "application/json");
+	        conn.setRequestProperty("Authorization", "Bearer " + token);
+	        conn.setDoOutput(true);
 
-			// Escribir el cuerpo de la solicitud
-			try (OutputStream os = conn.getOutputStream()) {
-				byte[] input = body.getBytes("utf-8");
-				os.write(input, 0, input.length);
-			}
+	        // Crear el cuerpo de la solicitud
+	        JSONObject jsonBody = new JSONObject();
+	        jsonBody.put("dni", dni);
+	        String body = jsonBody.toString();
 
-			// Leer la respuesta
-			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-			StringBuilder response = new StringBuilder();
-			String responseLine;
-			while ((responseLine = br.readLine()) != null) {
-				response.append(responseLine.trim());
-			}
-			br.close();
-			conn.disconnect();
+	        // Escribir el cuerpo de la solicitud
+	        try (OutputStream os = conn.getOutputStream()) {
+	            byte[] input = body.getBytes("utf-8");
+	            os.write(input, 0, input.length);
+	        }
 
-			return response.toString();
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e.getMessage());
-			ErrorHandler.throwIOExceptionWithCause(
-					"Compruebe si el valor de API_TOKEN no este vacio y/o sea correcto en el archivo .env",
-					new Throwable(e.getMessage()));
+	        // Leer la respuesta
+	        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+	        StringBuilder response = new StringBuilder();
+	        String responseLine;
+	        while ((responseLine = br.readLine()) != null) {
+	            response.append(responseLine.trim());
+	        }
+	        br.close();
+	        conn.disconnect();
 
-			return null;
-		}
+	        return response.toString();
+	    } catch (NoInternetException e) {
+	        // Manejar la excepción de falta de conexión a Internet
+	        JOptionPane.showMessageDialog(null, "No hay conexión a Internet. Por favor, verifica tu conexión.");
+	        ErrorHandler.throwNotInternetException(
+	                "No hay conexión a Internet. Por favor, verifica tu conexión",
+	                new Throwable(e.getMessage()));
+	        return null;
+	    } catch (Exception e) {
+	        // Manejar otras excepciones
+	        JOptionPane.showMessageDialog(null, e.getMessage());
+	        ErrorHandler.throwIOExceptionWithCause(
+	                "Compruebe si el valor de API_TOKEN no esté vacío y/o sea correcto en el archivo .env",
+	                new Throwable(e.getMessage()));
+
+	        return null;
+	    }
 	}
 }
