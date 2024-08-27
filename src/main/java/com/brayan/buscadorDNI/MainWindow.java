@@ -138,7 +138,7 @@ public class MainWindow extends JFrame {
 		buttonCopy3.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
 		buttonCopy3.setBounds(480, 194, 32, 32);
 		contentPane.add(buttonCopy3);
-		
+
 		JButton buttonCopy4 = new JButton("");
 		buttonCopy4.setIcon(new ImageIcon(MainWindow.class.getResource("/com/brayan/buscadorDNI/images/copia.png")));
 		buttonCopy4.setBounds(480, 243, 32, 32);
@@ -155,8 +155,6 @@ public class MainWindow extends JFrame {
 		textField_numerodni.setBounds(208, 248, 250, 26);
 		textField_numerodni.setEditable(false);
 		contentPane.add(textField_numerodni);
-
-	
 
 		lblNombreCompleto = new JLabel("");
 		lblNombreCompleto.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -212,71 +210,95 @@ public class MainWindow extends JFrame {
 		});
 
 		btn_search.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				borrarErroresDNI();
+		    public void actionPerformed(ActionEvent e) {
+		        borrarErroresDNI();
 
-				String dni = textField_dni.getText();
+		        String dni = textField_dni.getText();
 
-				if (dni.length() == 8) {
-					borrarResultados();
+		        if (dni.length() == 8) {
+		            borrarResultados();
 
-					// String response = makePostRequest(API_URL, TOKEN, dni);
-					progressBar.setIndeterminate(true);
-					progressBar.setVisible(true);
-					new SwingWorker<String, Void>() {
+		            progressBar.setIndeterminate(true);
+		            progressBar.setVisible(true);
 
-						@Override
-						protected String doInBackground() throws Exception {
-							// TODO Auto-generated method stub
-							return makePostRequest(API_URL, apiToken, dni);
-						}
+		            new SwingWorker<Persona, Void>() {
 
-						@Override
-						protected void done() {
-							try {
-								String response = get();
-								JSONObject jsonResponse = new JSONObject(response);
-								if (jsonResponse.getBoolean("success")) {
-									JSONObject data = jsonResponse.getJSONObject("data");
-									String numero = data.getString("numero");
-									String nombreCompleto = data.getString("nombre_completo");
-									String nombres = data.getString("nombres");
-									String apellidoPaterno = data.getString("apellido_paterno");
-									String apellidoMaterno = data.getString("apellido_materno");
+		                @Override
+		                protected Persona doInBackground() throws Exception {
+		                    Persona persona = null;
 
-									textField_nombres.setText(nombres);
-									textField_apPaterno.setText(apellidoPaterno);
-									textField_apMaterno.setText(apellidoMaterno);
-									textField_numerodni.setText(numero);
-									lblNombreCompleto.setText(nombreCompleto);
+		                    try {
+		                        // Intentar buscar en la base de datos primero
+		                        persona = DatabaseManager.searchPersonByDni(dni);
+		                        System.out.println("LLAMANDO A BD");
+		                    } catch (Exception e2) {
+		                        System.err.println("Error al buscar en la base de datos: " + e2.getMessage());
+		                    }
 
-									System.out
-											.println("NÃºmero: " + numero + "\n" + "Nombre Completo: " + nombreCompleto
-													+ "\n" + "Nombres: " + nombres + "\n" + "Apellido Paterno: "
-													+ apellidoPaterno + "\n" + "Apellido Materno: " + apellidoMaterno);
-								} else {
-									lblNombreCompleto.setText("No se encontraron datos");
-									System.out.println("Consulta fallida");
-								}
-							} catch (Exception ex) {
-								System.err.println("Error al analizar la respuesta: " + ex.getMessage());
+		                    // Si no se encuentra en la base de datos, hacer la consulta a la API
+		                    if (persona == null) {
+		                        String response = makePostRequest(API_URL, apiToken, dni);
+		                        System.out.println("LLAMANDO A API");
 
-							} finally {
-								progressBar.setVisible(false);
-							}
-						}
+		                        JSONObject jsonResponse = new JSONObject(response);
+		                        if (jsonResponse.getBoolean("success")) {
+		                            JSONObject data = jsonResponse.getJSONObject("data");
+		                            String numero = data.getString("numero");
+		                            String nombreCompleto = data.getString("nombre_completo");
+		                            String nombres = data.getString("nombres");
+		                            String apellidoPaterno = data.getString("apellido_paterno");
+		                            String apellidoMaterno = data.getString("apellido_materno");
 
-					}.execute();
+		                            persona = new Persona();
+		                            persona.setDni(numero);
+		                            persona.setNombres(nombres);
+		                            persona.setApellidoPaterno(apellidoPaterno);
+		                            persona.setApellidoMaterno(apellidoMaterno);
+		                            persona.setNombreCompleto(nombreCompleto);
 
-				} else {
-					textField_dni.setBorder(new LineBorder(Color.RED, 3));
-					textField_dni.setForeground(Color.RED);
+		                            // Guardar la persona en la base de datos
+		                            DatabaseManager.insertPerson(persona);
+		                        }
+		                    }
 
-					lblErrorDNI.setText("El DNI debe tener 8 digitos");
-				}
+		                    return persona;
+		                }
 
-			}
+		                @Override
+		                protected void done() {
+		                    try {
+		                        Persona persona = get();
+
+		                        if (persona != null) {
+		                            textField_nombres.setText(persona.getNombres());
+		                            textField_apPaterno.setText(persona.getApellidoPaterno());
+		                            textField_apMaterno.setText(persona.getApellidoMaterno());
+		                            textField_numerodni.setText(persona.getDni());
+		                            lblNombreCompleto.setText(persona.getNombreCompleto());
+
+		                            System.out.println("Datos cargados: " + persona.getNombreCompleto());
+		                        } else {
+		                            lblNombreCompleto.setText("No se encontraron datos");
+		                            System.out.println("No se encontraron datos.");
+		                        }
+		                    } catch (Exception ex) {
+		                        System.err.println("Error al procesar los datos: " + ex.getMessage());
+		                    } finally {
+		                        progressBar.setVisible(false);
+		                    }
+		                }
+
+		            }.execute();
+
+		        } else {
+		            textField_dni.setBorder(new LineBorder(Color.RED, 3));
+		            textField_dni.setForeground(Color.RED);
+		            lblErrorDNI.setText("El DNI debe tener 8 dígitos");
+		        }
+		    }
 		});
+
+
 	}
 
 	protected void borrarResultados() {
@@ -303,57 +325,58 @@ public class MainWindow extends JFrame {
 		clipboard.setContents(stringSelection, null);
 
 	}
+
 	protected String makePostRequest(String apiUrl, String token, String dni) throws Exception {
-	    try {
-	        // Verificar conexión a Internet antes de hacer la solicitud
-	        InternetChecker.checkInternetConnection();
+		try {
+			// Verificar conexión a Internet antes de hacer la solicitud
+			InternetChecker.checkInternetConnection();
+			System.out.println("LLAMANDO A API");
 
-	        @SuppressWarnings("deprecation")
-	        URL url = new URL(apiUrl);
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	        conn.setRequestMethod("POST");
-	        conn.setRequestProperty("Accept", "application/json");
-	        conn.setRequestProperty("Content-Type", "application/json");
-	        conn.setRequestProperty("Authorization", "Bearer " + token);
-	        conn.setDoOutput(true);
+			@SuppressWarnings("deprecation")
+			URL url = new URL(apiUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Accept", "application/json");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Authorization", "Bearer " + token);
+			conn.setDoOutput(true);
 
-	        // Crear el cuerpo de la solicitud
-	        JSONObject jsonBody = new JSONObject();
-	        jsonBody.put("dni", dni);
-	        String body = jsonBody.toString();
+			// Crear el cuerpo de la solicitud
+			JSONObject jsonBody = new JSONObject();
+			jsonBody.put("dni", dni);
+			String body = jsonBody.toString();
 
-	        // Escribir el cuerpo de la solicitud
-	        try (OutputStream os = conn.getOutputStream()) {
-	            byte[] input = body.getBytes("utf-8");
-	            os.write(input, 0, input.length);
-	        }
+			// Escribir el cuerpo de la solicitud
+			try (OutputStream os = conn.getOutputStream()) {
+				byte[] input = body.getBytes("utf-8");
+				os.write(input, 0, input.length);
+			}
 
-	        // Leer la respuesta
-	        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-	        StringBuilder response = new StringBuilder();
-	        String responseLine;
-	        while ((responseLine = br.readLine()) != null) {
-	            response.append(responseLine.trim());
-	        }
-	        br.close();
-	        conn.disconnect();
+			// Leer la respuesta
+			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+			StringBuilder response = new StringBuilder();
+			String responseLine;
+			while ((responseLine = br.readLine()) != null) {
+				response.append(responseLine.trim());
+			}
+			br.close();
+			conn.disconnect();
 
-	        return response.toString();
-	    } catch (NoInternetException e) {
-	        // Manejar la excepción de falta de conexión a Internet
-	        JOptionPane.showMessageDialog(null, "No hay conexión a Internet. Por favor, verifica tu conexión.");
-	        ErrorHandler.throwNotInternetException(
-	                "No hay conexión a Internet. Por favor, verifica tu conexión",
-	                new Throwable(e.getMessage()));
-	        return null;
-	    } catch (Exception e) {
-	        // Manejar otras excepciones
-	        JOptionPane.showMessageDialog(null, e.getMessage());
-	        ErrorHandler.throwIOExceptionWithCause(
-	                "Compruebe si el valor de API_TOKEN no esté vacío y/o sea correcto en el archivo .env",
-	                new Throwable(e.getMessage()));
+			return response.toString();
+		} catch (NoInternetException e) {
+			// Manejar la excepción de falta de conexión a Internet
+			JOptionPane.showMessageDialog(null, "No hay conexión a Internet. Por favor, verifica tu conexión.");
+			ErrorHandler.throwNotInternetException("No hay conexión a Internet. Por favor, verifica tu conexión",
+					new Throwable(e.getMessage()));
+			return null;
+		} catch (Exception e) {
+			// Manejar otras excepciones
+			JOptionPane.showMessageDialog(null, e.getMessage());
+			ErrorHandler.throwIOExceptionWithCause(
+					"Compruebe si el valor de API_TOKEN no esté vacío y/o sea correcto en el archivo .env",
+					new Throwable(e.getMessage()));
 
-	        return null;
-	    }
+			return null;
+		}
 	}
 }

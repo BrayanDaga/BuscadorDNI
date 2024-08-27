@@ -11,6 +11,8 @@ public class Launcher {
 	public static void main(String[] args) throws Exception {
 
 		try {
+	        DatabaseManager.createTable(); // Crear la tabla
+
 			final  Dotenv dotenv = Dotenv.configure().directory(".").load(); // Esto indica que el archivo .env está en la raíz del proyecto
 		      // Cargar las variables del archivo .env
 			final String TOKEN = dotenv.get("API_TOKEN"); // Obtener el token desde el archivo .env
