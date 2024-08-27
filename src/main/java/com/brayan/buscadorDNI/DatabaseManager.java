@@ -22,7 +22,7 @@ public class DatabaseManager {
 		String sql = "CREATE TABLE IF NOT EXISTS personas ( dni CHAR(8) PRIMARY KEY,\n"
 				+ "    nombres TEXT NOT NULL,\n" + "    apellidoPaterno TEXT NOT NULL,\n"
 				+ "    apellidoMaterno TEXT NOT NULL,\n"
-				+ "    nombreCompleto TEXT GENERATED ALWAYS AS (nombres || ' ' || apellidoPaterno || ' ' || apellidoMaterno) STORED\n"
+				+ "    nombreCompleto TEXT \n"
 				+ ");";
 
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
@@ -35,13 +35,14 @@ public class DatabaseManager {
 
 	// Método para insertar una persona
 	public static void insertPerson(Persona persona) {
-		String sql = "INSERT INTO personas(dni, nombres, apellidoPaterno, apellidoMaterno) VALUES(?, ?, ?, ?)";
+		String sql = "INSERT INTO personas(dni, nombres, apellidoPaterno, apellidoMaterno, nombreCompleto ) VALUES(?, ?, ?, ?, ?)";
 
 		try (Connection conn = connect(); java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, persona.getDni());
 			pstmt.setString(2, persona.getNombres());
 			pstmt.setString(3, persona.getApellidoPaterno());
 			pstmt.setString(4, persona.getApellidoMaterno());
+			pstmt.setString(5, persona.getNombreCompleto());
 			pstmt.executeUpdate();
 			System.out.println("Persona insertada.");
 		} catch (SQLException e) {
