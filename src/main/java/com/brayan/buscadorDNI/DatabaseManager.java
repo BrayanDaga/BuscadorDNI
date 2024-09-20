@@ -1,24 +1,59 @@
 package com.brayan.buscadorDNI;
 
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
-import com.brayan.buscadorDNI.Persona;
-
 public class DatabaseManager {
-	private static final String DB_URL = "jdbc:sqlite:src/main/resources/database.sqlite";
 
-	public static Connection connect() {
-		Connection conn = null;
-		try {
-			conn = DriverManager.getConnection(DB_URL);
-			System.out.println("Conectado a la base de datos SQLite.");
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return conn;
-	}
+	 private static String dbPath;
 
-	public static void createTable() {
+	    public static Connection connect() {
+	        if (dbPath == null) {
+	            try {
+					dbPath = copyDatabaseFromJar();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+
+	        // Conectar a la base de datos SQLite usando el archivo extraído
+	        String url = "jdbc:sqlite:" + dbPath;
+	        Connection conn = null;
+	        try {
+	            conn = DriverManager.getConnection(url);
+	            System.out.println("Conexión a la base de datos establecida.");
+	        } catch (SQLException e) {
+	            System.out.println(e.getMessage());
+	        }
+	        return conn;
+	    }
+
+	    private static String copyDatabaseFromJar() throws Exception {
+	        // Ruta del archivo dentro del JAR
+	        InputStream dbStream = DatabaseManager.class.getResourceAsStream("/resources/database.sqlite");
+	        if (dbStream == null) {
+	            System.out.println("No se pudo encontrar el archivo de base de datos dentro del JAR.");
+	            return null;
+	        }
+
+	        try {
+	            // Crear un archivo temporal en el sistema de archivos
+	            Path tempFile = Files.createTempFile("database", ".sqlite");
+	            tempFile.toFile().deleteOnExit(); // Eliminar el archivo temporal al cerrar la aplicación
+
+	            // Copiar el contenido del archivo dentro del JAR al archivo temporal
+	            Files.copy(dbStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+	            return tempFile.toAbsolutePath().toString();
+	        } catch (Exception e) {
+	            System.out.println("Error al copiar la base de datos desde el JAR: " + e.getMessage());
+	            return null;
+	        }
+	    }
+	public static void createTable() throws Exception {
 		String sql = "CREATE TABLE IF NOT EXISTS personas ( dni CHAR(8) PRIMARY KEY,\n"
 				+ "    nombres TEXT NOT NULL,\n" + "    apellidoPaterno TEXT NOT NULL,\n"
 				+ "    apellidoMaterno TEXT NOT NULL,\n"
@@ -34,7 +69,7 @@ public class DatabaseManager {
 	}
 
 	// Método para insertar una persona
-	public static void insertPerson(Persona persona) {
+	public static void insertPerson(Persona persona) throws Exception {
 		String sql = "INSERT INTO personas(dni, nombres, apellidoPaterno, apellidoMaterno, nombreCompleto ) VALUES(?, ?, ?, ?, ?)";
 
 		try (Connection conn = connect(); java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -51,7 +86,7 @@ public class DatabaseManager {
 	}
 
 	// Método para consultar personas
-	public static void queryPersons() {
+	public static void queryPersons() throws Exception {
 		String sql = "SELECT dni, nombres, apellidoPaterno, apellidoMaterno, nombreCompleto FROM personas";
 
 		try (Connection conn = connect();
@@ -92,7 +127,10 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-        }
+        } catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		return null;
     }
 }
